@@ -8,17 +8,17 @@
         body {
             font-family: 'Comic Sans MS', 'Arial', sans-serif;
             margin: 20px;
-            background: linear-gradient(135deg, #ffeb3b, #ff9800);
+            background: linear-gradient(135deg, #42a5f5, #80d8ff); /* Fun blue to light blue gradient */
             color: #333;
         }
         h1 {
-            color: #e91e63;
+            color: #4caf50; /* Bright light green */
             text-align: center;
             font-size: 36px;
             text-shadow: 2px 2px #fff;
         }
         h2 {
-            color: #2196f3;
+            color: #0288d1; /* Vibrant blue */
             font-size: 24px;
         }
         .container {
@@ -28,34 +28,34 @@
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
-            border: 3px solid #2196f3;
+            border: 3px solid #0288d1; /* Vibrant blue border */
         }
         .form-group {
             margin-bottom: 20px;
-            background: #f0f8ff;
+            background: #e1f5fe; /* Very light blue */
             padding: 15px;
             border-radius: 10px;
-            border: 2px dashed #ff9800;
+            border: 2px dashed #81c784; /* Light green dashed border */
         }
         label {
             display: block;
             font-weight: bold;
             margin-bottom: 5px;
-            color: #e91e63;
+            color: #0288d1; /* Vibrant blue */
             font-size: 18px;
         }
         input[type="text"], select {
             width: 100%;
             padding: 10px;
             margin-bottom: 5px;
-            border: 2px solid #2196f3;
+            border: 2px solid #0288d1; /* Vibrant blue border */
             border-radius: 8px;
             font-size: 16px;
-            background: #e0f7fa;
+            background: #b3e5fc; /* Slightly darker light blue */
             color: #333;
         }
         input[type="text"]:focus, select:focus {
-            border-color: #ff9800;
+            border-color: #4caf50; /* Bright light green */
             outline: none;
             background: #fff;
         }
@@ -63,24 +63,27 @@
             display: none;
             position: absolute;
             background: #fff;
-            border: 2px solid #ff9800;
+            border: 2px solid #81c784; /* Light green border */
             border-radius: 8px;
-            padding: 5px;
+            padding: 10px;
             z-index: 10;
             box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            width: 200px;
+            max-height: 150px;
+            overflow-y: auto;
         }
         .suggestions div {
             padding: 8px;
             cursor: pointer;
-            color: #2196f3;
+            color: #0288d1; /* Vibrant blue text */
             font-size: 16px;
         }
         .suggestions div:hover {
-            background: #ffeb3b;
+            background: #c8e6c9; /* Very light green hover */
             border-radius: 5px;
         }
         button {
-            background-color: #e91e63;
+            background-color: #4caf50; /* Bright light green */
             color: white;
             padding: 12px 25px;
             border: none;
@@ -89,22 +92,22 @@
             font-size: 18px;
             display: block;
             margin: 20px auto;
-            box-shadow: 0 3px #c2185b;
+            box-shadow: 0 3px #388e3c; /* Slightly darker green shadow */
         }
         button:hover {
-            background-color: #d81b60;
+            background-color: #66bb6a; /* Lighter green on hover */
             transform: translateY(2px);
-            box-shadow: 0 1px #c2185b;
+            box-shadow: 0 1px #388e3c;
         }
         button:active {
             transform: translateY(4px);
             box-shadow: none;
         }
         .error {
-            border: 2px solid #f44336 !important;
+            border: 2px solid #0288d1 !important; /* Vibrant blue for errors */
         }
         p {
-            color: #2196f3;
+            color: #0288d1; /* Vibrant blue */
             font-size: 18px;
             text-align: center;
         }
@@ -112,7 +115,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Create Your Family Tree Presentation 🌟</h1>
+        <h1>Create Your Family Tree Presentation 👨‍👩‍👧‍👦</h1>
         <p>Fill in the blanks to make your family presentation! Use the suggestions to help you! 🎉</p>
 
         <form id="familyForm">
@@ -145,14 +148,18 @@
                 <input type="text" id="parentPersonality" placeholder="Personality (e.g., kind)" required>
                 <div class="suggestions" id="parentPersonalitySuggestions">
                     <div>nice</div><div>kind</div><div>funny</div><div>smart</div>
+                    <div>happy</div><div>calm</div><div>cool</div>
                 </div>
                 <input type="text" id="parentActionVerb" placeholder="Action (e.g., help)" required>
                 <div class="suggestions" id="parentActionVerbSuggestions">
                     <div>help</div><div>cook</div><div>play</div><div>work</div>
+                    <div>read</div><div>teach</div><div>sing</div>
                 </div>
                 <input type="text" id="parentActionObject" placeholder="Thing (e.g., me study)" required>
                 <div class="suggestions" id="parentActionObjectSuggestions">
                     <div>me study</div><div>food</div><div>games</div><div>stories</div>
+                    <div>music</div><div>soccer</div><div>books</div><div>movies</div>
+                    <div>art</div><div>puzzles</div><div>cards</div><div>photos</div>
                 </div>
             </div>
 
@@ -161,10 +168,12 @@
                 <input type="text" id="parent1Physical" placeholder="Physical trait (e.g., short)" required>
                 <div class="suggestions" id="parent1PhysicalSuggestions">
                     <div>tall</div><div>short</div><div>big</div><div>small</div>
+                    <div>slim</div><div>strong</div><div>fast</div>
                 </div>
                 <input type="text" id="parent2Physical" placeholder="Physical trait (e.g., tall)" required>
                 <div class="suggestions" id="parent2PhysicalSuggestions">
                     <div>tall</div><div>short</div><div>big</div><div>small</div>
+                    <div>slim</div><div>strong</div><div>fast</div>
                 </div>
             </div>
 
@@ -187,14 +196,18 @@
                 <input type="text" id="relative1Personality" placeholder="Personality (e.g., funny)" required>
                 <div class="suggestions" id="relative1PersonalitySuggestions">
                     <div>nice</div><div>kind</div><div>funny</div><div>smart</div>
+                    <div>happy</div><div>calm</div><div>cool</div>
                 </div>
                 <input type="text" id="relative1ActionVerb" placeholder="Action (e.g., plays)" required>
                 <div class="suggestions" id="relative1ActionVerbSuggestions">
                     <div>helps</div><div>cooks</div><div>plays</div><div>works</div>
+                    <div>reads</div><div>teaches</div><div>sings</div>
                 </div>
                 <input type="text" id="relative1ActionObject" placeholder="Thing (e.g., video games)" required>
                 <div class="suggestions" id="relative1ActionObjectSuggestions">
                     <div>video games</div><div>food</div><div>soccer</div><div>stories</div>
+                    <div>music</div><div>books</div><div>drawings</div><div>movies</div>
+                    <div>art</div><div>puzzles</div><div>cards</div><div>photos</div>
                 </div>
             </div>
 
@@ -217,14 +230,18 @@
                 <input type="text" id="relative2Personality" placeholder="Personality (e.g., nice)" required>
                 <div class="suggestions" id="relative2PersonalitySuggestions">
                     <div>nice</div><div>kind</div><div>funny</div><div>smart</div>
+                    <div>happy</div><div>calm</div><div>cool</div>
                 </div>
                 <input type="text" id="relative2ActionVerb" placeholder="Action (e.g., cooks)" required>
                 <div class="suggestions" id="relative2ActionVerbSuggestions">
                     <div>helps</div><div>cooks</div><div>plays</div><div>works</div>
+                    <div>reads</div><div>teaches</div><div>sings</div>
                 </div>
                 <input type="text" id="relative2ActionObject" placeholder="Thing (e.g., delicious food)" required>
                 <div class="suggestions" id="relative2ActionObjectSuggestions">
                     <div>delicious food</div><div>games</div><div>soccer</div><div>stories</div>
+                    <div>music</div><div>books</div><div>drawings</div><div>movies</div>
+                    <div>art</div><div>puzzles</div><div>cards</div><div>photos</div>
                 </div>
             </div>
 
