@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Your Family Tree Presentation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
     <style>
         body {
             font-family: 'Comic Sans MS', 'Arial', sans-serif;
             margin: 20px;
-            background: linear-gradient(135deg, #42a5f5, #80d8ff); /* Fun blue to light blue gradient */
+            background: linear-gradient(135deg, #42a5f5, #80d8ff);
             color: #333;
             position: relative;
             overflow-x: hidden;
         }
-        /* Animated background with floating shapes */
         body::before {
             content: '';
             position: fixed;
@@ -32,13 +32,13 @@
             100% { transform: translate(0, 0); }
         }
         h1 {
-            color: #4caf50; /* Bright light green */
+            color: #4caf50;
             text-align: center;
             font-size: 36px;
             text-shadow: 2px 2px #fff;
         }
         h2 {
-            color: #0288d1; /* Vibrant blue */
+            color: #0288d1;
             font-size: 24px;
         }
         .container {
@@ -48,44 +48,44 @@
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
-            border: 3px solid #0288d1; /* Vibrant blue border */
+            border: 3px solid #0288d1;
             position: relative;
             z-index: 1;
         }
         .form-group {
             margin-bottom: 20px;
-            background: #e1f5fe; /* Very light blue */
+            background: #e1f5fe;
             padding: 15px;
             border-radius: 10px;
-            border: 2px dashed #81c784; /* Light green dashed border */
+            border: 2px dashed #81c784;
         }
         label {
             display: block;
             font-weight: bold;
             margin-bottom: 5px;
-            color: #0288d1; /* Vibrant blue */
+            color: #0288d1;
             font-size: 18px;
         }
         input[type="text"], select {
             width: 100%;
             padding: 10px;
             margin-bottom: 5px;
-            border: 2px solid #0288d1; /* Vibrant blue border */
+            border: 2px solid #0288d1;
             border-radius: 8px;
             font-size: 16px;
-            background: #fff; /* White background */
+            background: #fff;
             color: #333;
         }
         input[type="text"]:focus, select:focus {
-            border-color: #4caf50; /* Bright light green */
+            border-color: #4caf50;
             outline: none;
             background: #fff;
         }
         .suggestions {
             display: none;
             position: absolute;
-            background: #b3e5fc; /* Slightly darker light blue background */
-            border: 2px solid #81c784; /* Light green border */
+            background: #b3e5fc;
+            border: 2px solid #81c784;
             border-radius: 8px;
             padding: 10px;
             z-index: 10;
@@ -97,15 +97,15 @@
         .suggestions div {
             padding: 8px;
             cursor: pointer;
-            color: #0288d1; /* Vibrant blue text */
+            color: #0288d1;
             font-size: 16px;
         }
         .suggestions div:hover {
-            background: #c8e6c9; /* Very light green hover */
+            background: #c8e6c9;
             border-radius: 5px;
         }
         button {
-            background-color: #4caf50; /* Bright light green */
+            background-color: #4caf50;
             color: white;
             padding: 12px 25px;
             border: none;
@@ -114,10 +114,10 @@
             font-size: 18px;
             display: block;
             margin: 20px auto;
-            box-shadow: 0 3px #388e3c; /* Slightly darker green shadow */
+            box-shadow: 0 3px #388e3c;
         }
         button:hover {
-            background-color: #66bb6a; /* Lighter green on hover */
+            background-color: #66bb6a;
             transform: translateY(2px);
             box-shadow: 0 1px #388e3c;
         }
@@ -126,12 +126,31 @@
             box-shadow: none;
         }
         .error {
-            border: 2px solid #0288d1 !important; /* Vibrant blue for errors */
+            border: 2px solid #0288d1 !important;
         }
         p {
-            color: #0288d1; /* Vibrant blue */
+            color: #0288d1;
             font-size: 18px;
             text-align: center;
+        }
+        #familyTreeCanvas {
+            display: block;
+            margin: 20px auto;
+            border: 3px solid #0288d1;
+            border-radius: 10px;
+            background: #e1f5fe;
+        }
+        .pet-type-group {
+            display: none;
+        }
+        .inline-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .inline-group select, .inline-group input {
+            width: auto;
+            flex: 1;
         }
     </style>
 </head>
@@ -152,16 +171,19 @@
             </div>
 
             <div class="form-group">
-                <label>My parents are __________, my __________, and __________, my __________.</label>
-                <input type="text" id="parent1Name" placeholder="Parent 1 name (e.g., Maria)" required>
+                <label>My parent(s) are:</label>
+                <label>First Parent: <input type="text" id="parent1Name" placeholder="Parent name (e.g., Maria)" required></label>
                 <select id="parent1Role" required>
                     <option value="father">father</option>
                     <option value="mother">mother</option>
+                    <option value="parent">parent</option>
                 </select>
-                <input type="text" id="parent2Name" placeholder="Parent 2 name (e.g., Luis)" required>
-                <select id="parent2Role" required>
+                <label>Second Parent (optional): <input type="text" id="parent2Name" placeholder="Parent name (e.g., Luis)"></label>
+                <select id="parent2Role">
+                    <option value="">none</option>
                     <option value="father">father</option>
                     <option value="mother">mother</option>
+                    <option value="parent">parent</option>
                 </select>
             </div>
 
@@ -169,30 +191,33 @@
                 <label>They are __________ and __________ __________.</label>
                 <input type="text" id="parentPersonality" placeholder="Personality (e.g., kind)" required>
                 <div class="suggestions" id="parentPersonalitySuggestions">
-                    <div>nice</div><div>kind</div><div>funny</div><div>smart</div>
-                    <div>cheerful</div><div>calm</div><div>cool</div>
+                    <div>kind</div><div>funny</div><div>supportive</div><div>creative</div>
+                    <div>patient</div><div>cheerful</div><div>smart</div><div>caring</div>
+                    <div>energetic</div><div>helpful</div>
                 </div>
                 <input type="text" id="parentActionVerb" placeholder="Action (e.g., help)" required>
                 <div class="suggestions" id="parentActionVerbSuggestions">
-                    <div>help</div><div>cook</div><div>play</div><div>work</div>
-                    <div>read</div><div>teach</div><div>sing</div>
+                    <div>help</div><div>cook</div><div>play</div><div>teach</div>
+                    <div>read</div><div>support</div><div>organize</div><div>create</div>
+                    <div>tell</div><div>coach</div>
                 </div>
-                <input type="text" id="parentActionObject" placeholder="Thing (e.g., me study)" required>
+                <input type="text" id="parentActionObject" placeholder="Thing (e.g., with homework)" required>
                 <div class="suggestions" id="parentActionObjectSuggestions">
-                    <div>me study</div><div>food</div><div>games</div><div>stories</div>
-                    <div>music</div><div>soccer</div><div>books</div><div>movies</div>
-                    <div>art</div><div>puzzles</div><div>cards</div><div>photos</div>
+                    <div>with homework</div><div>delicious meals</div><div>board games</div>
+                    <div>new skills</div><div>bedtime stories</div><div>the family</div>
+                    <div>family trips</div><div>art projects</div><div>funny stories</div>
+                    <div>sports teams</div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label>__________ is __________. __________ is __________.</label>
-                <input type="text" id="parent1Physical" placeholder="Physical trait (e.g., short)" required>
+                <label>Physical traits (optional):</label>
+                <label>First Parent is <input type="text" id="parent1Physical" placeholder="Physical trait (e.g., short)"></label>
                 <div class="suggestions" id="parent1PhysicalSuggestions">
                     <div>tall</div><div>short</div><div>big</div><div>small</div>
                     <div>slim</div><div>strong</div><div>fast</div>
                 </div>
-                <input type="text" id="parent2Physical" placeholder="Physical trait (e.g., tall)" required>
+                <label>Second Parent is <input type="text" id="parent2Physical" placeholder="Physical trait (e.g., tall)"></label>
                 <div class="suggestions" id="parent2PhysicalSuggestions">
                     <div>tall</div><div>short</div><div>big</div><div>small</div>
                     <div>slim</div><div>strong</div><div>fast</div>
@@ -200,70 +225,106 @@
             </div>
 
             <div class="form-group">
-                <label>1. I’ve got a __________. His/Her name is __________.</label>
-                <select id="relative1Role" required>
-                    <option value="brother">brother</option>
-                    <option value="sister">sister</option>
-                    <option value="grandfather">grandfather</option>
-                    <option value="grandmother">grandmother</option>
-                    <option value="uncle">uncle</option>
-                    <option value="aunt">aunt</option>
-                    <option value="cousin">cousin</option>
-                </select>
-                <input type="text" id="relative1Name" placeholder="Name (e.g., Ana)" required>
+                <label id="relative1Label">1. I’ve got a __________.</label>
+                <div class="inline-group">
+                    <select id="relative1Role" required onchange="updatePronounOptions(1); togglePetType(1); updatePronounLabel(1)">
+                        <option value="brother">brother</option>
+                        <option value="sister">sister</option>
+                        <option value="grandfather">grandfather</option>
+                        <option value="grandmother">grandmother</option>
+                        <option value="uncle">uncle</option>
+                        <option value="aunt">aunt</option>
+                        <option value="cousin">cousin</option>
+                        <option value="pet">pet</option>
+                    </select>
+                    <select id="relative1Pronoun" required>
+                        <option value="His">His</option>
+                    </select>
+                    <input type="text" id="relative1Name" placeholder="Name (e.g., Ana)" required>
+                </div>
+                <div class="pet-type-group" id="petTypeGroup1">
+                    <label>Pet Type: </label>
+                    <select id="petType1" required>
+                        <option value="dog">dog</option>
+                        <option value="cat">cat</option>
+                        <option value="bird">bird</option>
+                        <option value="fish">fish</option>
+                        <option value="rabbit">rabbit</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>He/She is __________ and __________ __________.</label>
+            <div class="form-group" id="relative1Traits">
+                <label id="relative1TraitsLabel">He is __________ and __________ __________.</label>
                 <input type="text" id="relative1Personality" placeholder="Personality (e.g., funny)" required>
                 <div class="suggestions" id="relative1PersonalitySuggestions">
-                    <div>nice</div><div>kind</div><div>funny</div><div>smart</div>
-                    <div>cheerful </div><div>calm</div><div>cool</div>
+                    <div>funny</div><div>kind</div><div>creative</div><div>energetic</div>
+                    <div>smart</div><div>helpful</div><div>cheerful</div><div>brave</div>
+                    <div>curious</div><div>friendly</div>
                 </div>
                 <input type="text" id="relative1ActionVerb" placeholder="Action (e.g., plays)" required>
                 <div class="suggestions" id="relative1ActionVerbSuggestions">
-                    <div>helps</div><div>cooks</div><div>plays</div><div>works</div>
-                    <div>reads</div><div>teaches</div><div>sings</div>
+                    <div>plays</div><div>draws</div><div>helps</div><div>builds</div>
+                    <div>reads</div><div>sings</div><div>explores</div><div>paints</div>
+                    <div>shares</div><div>practices</div>
                 </div>
-                <input type="text" id="relative1ActionObject" placeholder="Thing (e.g., video games)" required>
+                <input type="text" id="relative1ActionObject" placeholder="Thing (e.g., soccer)" required>
                 <div class="suggestions" id="relative1ActionObjectSuggestions">
-                    <div>video games</div><div>food</div><div>soccer</div><div>stories</div>
-                    <div>music</div><div>books</div><div>drawings</div><div>movies</div>
-                    <div>art</div><div>puzzles</div><div>cards</div><div>photos</div>
+                    <div>soccer</div><div>pictures</div><div>with chores</div><div>models</div>
+                    <div>books</div><div>songs</div><div>new places</div><div>art projects</div>
+                    <div>toys</div><div>sports</div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label>2. I’ve got a __________. His/Her name is __________.</label>
-                <select id="relative2Role" required>
-                    <option value="brother">brother</option>
-                    <option value="sister">sister</option>
-                    <option value="grandfather">grandfather</option>
-                    <option value="grandmother">grandmother</option>
-                    <option value="uncle">uncle</option>
-                    <option value="aunt">aunt</option>
-                    <option value="cousin">cousin</option>
-                </select>
-                <input type="text" id="relative2Name" placeholder="Name (e.g., Rosa)" required>
+                <label id="relative2Label">2. I’ve got a __________.</label>
+                <div class="inline-group">
+                    <select id="relative2Role" required onchange="updatePronounOptions(2); togglePetType(2); updatePronounLabel(2)">
+                        <option value="brother">brother</option>
+                        <option value="sister">sister</option>
+                        <option value="grandfather">grandfather</option>
+                        <option value="grandmother">grandmother</option>
+                        <option value="uncle">uncle</option>
+                        <option value="aunt">aunt</option>
+                        <option value="cousin">cousin</option>
+                        <option value="pet">pet</option>
+                    </select>
+                    <select id="relative2Pronoun" required>
+                        <option value="His">His</option>
+                    </select>
+                    <input type="text" id="relative2Name" placeholder="Name (e.g., Rosa)" required>
+                </div>
+                <div class="pet-type-group" id="petTypeGroup2">
+                    <label>Pet Type: </label>
+                    <select id="petType2" required>
+                        <option value="dog">dog</option>
+                        <option value="cat">cat</option>
+                        <option value="bird">bird</option>
+                        <option value="fish">fish</option>
+                        <option value="rabbit">rabbit</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>He/She is __________ and __________ __________.</label>
+            <div class="form-group" id="relative2Traits">
+                <label id="relative2TraitsLabel">He is __________ and __________ __________.</label>
                 <input type="text" id="relative2Personality" placeholder="Personality (e.g., nice)" required>
                 <div class="suggestions" id="relative2PersonalitySuggestions">
-                    <div>nice</div><div>kind</div><div>funny</div><div>smart</div>
-                    <div>cheerful</div><div>calm</div><div>cool</div>
+                    <div>funny</div><div>kind</div><div>creative</div><div>energetic</div>
+                    <div>smart</div><div>helpful</div><div>cheerful</div><div>brave</div>
+                    <div>curious</div><div>friendly</div>
                 </div>
-                <input type="text" id="relative2ActionVerb" placeholder="Action (e.g., cooks)" required>
+                <input type="text" id="relative2ActionVerb" placeholder="Action (e.g., plays)" required>
                 <div class="suggestions" id="relative2ActionVerbSuggestions">
-                    <div>helps</div><div>cooks</div><div>plays</div><div>works</div>
-                    <div>reads</div><div>teaches</div><div>sings</div>
+                    <div>plays</div><div>draws</div><div>helps</div><div>builds</div>
+                    <div>reads</div><div>sings</div><div>explores</div><div>paints</div>
+                    <div>shares</div><div>practices</div>
                 </div>
-                <input type="text" id="relative2ActionObject" placeholder="Thing (e.g., delicious food)" required>
+                <input type="text" id="relative2ActionObject" placeholder="Thing (e.g., soccer)" required>
                 <div class="suggestions" id="relative2ActionObjectSuggestions">
-                    <div>delicious food</div><div>games</div><div>soccer</div><div>stories</div>
-                    <div>music</div><div>books</div><div>drawings</div><div>movies</div>
-                    <div>art</div><div>puzzles</div><div>cards</div><div>photos</div>
+                    <div>soccer</div><div>pictures</div><div>with chores</div><div>models</div>
+                    <div>books</div><div>songs</div><div>new places</div><div>art projects</div>
+                    <div>toys</div><div>sports</div>
                 </div>
             </div>
 
@@ -273,12 +334,14 @@
                 <label>Class: <input type="text" id="studentClass" placeholder="Your class"></label>
             </div>
 
+            <button type="button" onclick="generateFamilyTree()">Generate Family Tree! 🌳</button>
             <button type="button" onclick="downloadPresentation()">Download Your Presentation! 📥</button>
         </form>
+
+        <canvas id="familyTreeCanvas"></canvas>
     </div>
 
     <script>
-        // Suggestions for empty fields
         const suggestionFields = [
             'parentPersonality', 'parentActionVerb', 'parentActionObject',
             'parent1Physical', 'parent2Physical',
@@ -288,6 +351,7 @@
 
         suggestionFields.forEach(field => {
             const input = document.getElementById(field);
+            if (!input) return;
             const suggestions = document.getElementById(`${field}Suggestions`);
             input.addEventListener('focus', function() {
                 if (!this.value) {
@@ -307,7 +371,78 @@
             });
         });
 
-        // Download presentation
+        function updatePronounOptions(relativeNum) {
+            const role = document.getElementById(`relative${relativeNum}Role`).value;
+            const pronounSelect = document.getElementById(`relative${relativeNum}Pronoun`);
+            
+            pronounSelect.innerHTML = '';
+            
+            if (role === 'brother') {
+                pronounSelect.innerHTML = '<option value="His">His</option>';
+                pronounSelect.value = 'His';
+            } else if (role === 'sister') {
+                pronounSelect.innerHTML = '<option value="Her">Her</option>';
+                pronounSelect.value = 'Her';
+            } else if (role === 'pet') {
+                pronounSelect.innerHTML = '<option value="Its">Its</option>';
+                pronounSelect.value = 'Its';
+            } else {
+                pronounSelect.innerHTML = `
+                    <option value="His">His</option>
+                    <option value="Her">Her</option>
+                `;
+                pronounSelect.value = 'His';
+            }
+        }
+
+        function updatePronounLabel(relativeNum) {
+            const pronoun = document.getElementById(`relative${relativeNum}Pronoun`).value;
+            const role = document.getElementById(`relative${relativeNum}Role`).value;
+            const traitsLabel = document.getElementById(`relative${relativeNum}TraitsLabel`);
+            const mainLabel = document.getElementById(`relative${relativeNum}Label`);
+            if (role !== 'pet') {
+                const subjectPronoun = pronoun === 'His' ? 'He' : 'She';
+                traitsLabel.textContent = `${subjectPronoun} is __________ and __________ __________.`;
+                mainLabel.textContent = `${relativeNum}. I’ve got a ${role}. ${pronoun} name is __________.`;
+            } else {
+                mainLabel.textContent = `${relativeNum}. I’ve got a pet. ${pronoun} name is __________.`;
+            }
+        }
+
+        function togglePetType(relativeNum) {
+            const role = document.getElementById(`relative${relativeNum}Role`).value;
+            const petTypeGroup = document.getElementById(`petTypeGroup${relativeNum}`);
+            const traitsGroup = document.getElementById(`relative${relativeNum}Traits`);
+            const personality = document.getElementById(`relative${relativeNum}Personality`);
+            const actionVerb = document.getElementById(`relative${relativeNum}ActionVerb`);
+            const actionObject = document.getElementById(`relative${relativeNum}ActionObject`);
+            const pronoun = document.getElementById(`relative${relativeNum}Pronoun`);
+
+            if (role === 'pet') {
+                petTypeGroup.style.display = 'block';
+                traitsGroup.style.display = 'none';
+                personality.required = false;
+                actionVerb.required = false;
+                actionObject.required = false;
+                pronoun.value = 'Its';
+                pronoun.disabled = true;
+            } else {
+                petTypeGroup.style.display = 'none';
+                traitsGroup.style.display = 'block';
+                personality.required = true;
+                actionVerb.required = true;
+                actionObject.required = true;
+                pronoun.disabled = false;
+                updatePronounOptions(relativeNum);
+                updatePronounLabel(relativeNum);
+            }
+        }
+
+        updatePronounOptions(1);
+        updatePronounOptions(2);
+        updatePronounLabel(1);
+        updatePronounLabel(2);
+
         function downloadPresentation() {
             const name = document.getElementById('name').value;
             const familySize = document.getElementById('familySize').value;
@@ -322,19 +457,22 @@
             const parent2Physical = document.getElementById('parent2Physical').value;
             const relative1Role = document.getElementById('relative1Role').value;
             const relative1Name = document.getElementById('relative1Name').value;
+            const relative1Pronoun = document.getElementById('relative1Pronoun').value;
             const relative1Personality = document.getElementById('relative1Personality').value;
             const relative1ActionVerb = document.getElementById('relative1ActionVerb').value;
             const relative1ActionObject = document.getElementById('relative1ActionObject').value;
+            const relative1PetType = document.getElementById('petType1').value;
             const relative2Role = document.getElementById('relative2Role').value;
             const relative2Name = document.getElementById('relative2Name').value;
+            const relative2Pronoun = document.getElementById('relative2Pronoun').value;
             const relative2Personality = document.getElementById('relative2Personality').value;
             const relative2ActionVerb = document.getElementById('relative2ActionVerb').value;
             const relative2ActionObject = document.getElementById('relative2ActionObject').value;
+            const relative2PetType = document.getElementById('petType2').value;
             const studentName = document.getElementById('studentName').value;
             const studentNumber = document.getElementById('studentNumber').value;
             const studentClass = document.getElementById('studentClass').value;
 
-            // Validate inputs
             const requiredInputs = document.querySelectorAll('input[required], select[required]');
             let valid = true;
             requiredInputs.forEach(input => {
@@ -350,32 +488,155 @@
                 return;
             }
 
-            // Create presentation text
+            let parentText = `My parent is ${parent1Name}, my ${parent1Role}.`;
+            let physicalText = parent1Physical ? `${parent1Name} is ${parent1Physical}.` : '';
+            if (parent2Name && parent2Role) {
+                parentText = `My parents are ${parent1Name}, my ${parent1Role}, and ${parent2Name}, my ${parent2Role}.`;
+                if (parent2Physical) {
+                    physicalText += ` ${parent2Name} is ${parent2Physical}.`;
+                }
+            }
+
+            const subjectPronoun1 = relative1Pronoun === 'His' ? 'He' : relative1Pronoun === 'Her' ? 'She' : 'It';
+            const relative1Text = relative1Role === 'pet' 
+                ? `I’ve got a pet ${relative1PetType}. ${relative1Pronoun} name is ${relative1Name}.`
+                : `I’ve got a ${relative1Role}. ${relative1Pronoun} name is ${relative1Name}.\n${subjectPronoun1} is ${relative1Personality} and ${relative1ActionVerb} ${relative1ActionObject}.`;
+
+            const subjectPronoun2 = relative2Pronoun === 'His' ? 'He' : relative2Pronoun === 'Her' ? 'She' : 'It';
+            const relative2Text = relative2Role === 'pet' 
+                ? `I’ve got a pet ${relative2PetType}. ${relative2Pronoun} name is ${relative2Name}.`
+                : `I’ve got a ${relative2Role}. ${relative2Pronoun} name is ${relative2Name}.\n${subjectPronoun2} is ${relative2Personality} and ${relative2ActionVerb} ${relative2ActionObject}.`;
+
             const presentation = `
 Hi, my name is ${name}.
 This is my family tree.
 There are ${familySize} people in my family, including me.
-My parents are ${parent1Name}, my ${parent1Role}, and ${parent2Name}, my ${parent2Role}.
+${parentText}
 They are ${parentPersonality} and ${parentActionVerb} ${parentActionObject}.
-${parent1Name} is ${parent1Physical}. ${parent2Name} is ${parent2Physical}.
-I’ve got a ${relative1Role}.
-His/Her name is ${relative1Name}.
-He/She is ${relative1Personality} and ${relative1ActionVerb} ${relative1ActionObject}.
-I’ve got a ${relative2Role}.
-His/Her name is ${relative2Name}.
-He/She is ${relative2Personality} and ${relative2ActionVerb} ${relative2ActionObject}.
+${physicalText.trim()}
+${relative1Text}
+${relative2Text}
 
 Name: ${studentName}
 Number: ${studentNumber}
 Class: ${studentClass}
             `;
 
-            // Download as text file
             const blob = new Blob([presentation], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `${studentName}_Family_Presentation.txt`;
+            link.download = `${studentName || 'My'}_Family_Presentation.txt`;
             link.click();
+        }
+
+        let familyData = {};
+
+        function generateFamilyTree() {
+            familyData = {
+                name: document.getElementById('name').value || 'You',
+                parent1: {
+                    name: document.getElementById('parent1Name').value,
+                    role: document.getElementById('parent1Role').value
+                },
+                parent2: {
+                    name: document.getElementById('parent2Name').value,
+                    role: document.getElementById('parent2Role').value
+                },
+                relative1: {
+                    role: document.getElementById('relative1Role').value,
+                    name: document.getElementById('relative1Name').value,
+                    petType: document.getElementById('petType1').value
+                },
+                relative2: {
+                    role: document.getElementById('relative2Role').value,
+                    name: document.getElementById('relative2Name').value,
+                    petType: document.getElementById('petType2').value
+                }
+            };
+        }
+
+        function setup() {
+            const canvas = createCanvas(800, 400);
+            canvas.parent('familyTreeCanvas');
+            background('#e1f5fe');
+        }
+
+        function draw() {
+            background('#e1f5fe');
+            if (!familyData.name) return;
+
+            textAlign(CENTER, CENTER);
+            textSize(14);
+            fill(0);
+            stroke(0);
+            strokeWeight(2);
+
+            const boxWidth = 100;
+            const boxHeight = 40;
+            const levelHeight = 100;
+            const xCenter = width / 2;
+
+            fill('#b3e5fc');
+            rect(xCenter - boxWidth / 2, 20, boxWidth, boxHeight, 10);
+            fill(0);
+            text(familyData.name, xCenter, 20 + boxHeight / 2);
+
+            let parentNodes = [];
+            if (familyData.parent1.name) {
+                parentNodes.push({ name: familyData.parent1.name, x: xCenter - 100 });
+            }
+            if (familyData.parent2.name) {
+                parentNodes.push({ name: familyData.parent2.name, x: xCenter + 100 });
+            }
+            if (parentNodes.length === 1) {
+                parentNodes[0].x = xCenter;
+            }
+
+            parentNodes.forEach((node, i) => {
+                const y = 20 + levelHeight;
+                fill('#b3e5fc');
+                rect(node.x - boxWidth / 2, y, boxWidth, boxHeight, 10);
+                fill(0);
+                text(node.name, node.x, y + boxHeight / 2);
+                line(xCenter, 20 + boxHeight, node.x, y);
+            });
+
+            let relativeNodes = [];
+            if (familyData.relative1.name) {
+                const label = familyData.relative1.role === 'pet' 
+                    ? `${familyData.relative1.petType} ${familyData.relative1.name}` 
+                    : familyData.relative1.name;
+                relativeNodes.push({ name: label, x: xCenter - 150 });
+            }
+            if (familyData.relative2.name) {
+                const label = familyData.relative2.role === 'pet' 
+                    ? `${familyData.relative2.petType} ${familyData.relative2.name}` 
+                    : familyData.relative2.name;
+                relativeNodes.push({ name: label, x: xCenter + 150 });
+            }
+            if (relativeNodes.length === 1) {
+                relativeNodes[0].x = xCenter;
+            } else if (relativeNodes.length === 3) {
+                relativeNodes = [
+                    { name: relativeNodes[0].name, x: xCenter - 150 },
+                    { name: relativeNodes[1].name, x: xCenter },
+                    { name: relativeNodes[2].name, x: xCenter + 150 }
+                ];
+            }
+
+            relativeNodes.forEach((node, i) => {
+                const y = 20 + 2 * levelHeight;
+                fill('#b3e5fc');
+                rect(node.x - boxWidth / 2, y, boxWidth, boxHeight, 10);
+                fill(0);
+                text(node.name, node.x, y + boxHeight / 2);
+                if (parentNodes.length > 0) {
+                    const parentX = parentNodes[Math.min(i, parentNodes.length - 1)].x;
+                    line(parentX, 20 + levelHeight + boxHeight, node.x, y);
+                } else {
+                    line(xCenter, 20 + boxHeight, node.x, y);
+                }
+            });
         }
     </script>
 </body>
