@@ -139,6 +139,8 @@
             border: 3px solid #0288d1;
             border-radius: 10px;
             background: #e1f5fe;
+            width: 800px;
+            height: 400px;
         }
         .pet-type-group {
             display: none;
@@ -173,13 +175,18 @@
             <div class="form-group">
                 <label>My parent(s) are:</label>
                 <label>First Parent: <input type="text" id="parent1Name" placeholder="Parent name (e.g., Maria)" required></label>
-                <select id="parent1Role" required>
-                    <option value="father">father</option>
-                    <option value="mother">mother</option>
-                    <option value="parent">parent</option>
-                </select>
-                <label>Second Parent (optional): <input type="text" id="parent2Name" placeholder="Parent name (e.g., Luis)"></label>
-                <select id="parent2Role">
+                <div class="inline-group">
+                    <select id="parent1Role" required onchange="updateParentPronoun()">
+                        <option value="father">father</option>
+                        <option value="mother">mother</option>
+                        <option value="parent">parent</option>
+                    </select>
+                    <select id="parent1Pronoun" required>
+                        <option value="His">His</option>
+                    </select>
+                </div>
+                <label>Second Parent (optional): <input type="text" id="parent2Name" placeholder="Parent name (e.g., Luis)" oninput="updateParentLabel()"></label>
+                <select id="parent2Role" onchange="updateParentLabel()">
                     <option value="">none</option>
                     <option value="father">father</option>
                     <option value="mother">mother</option>
@@ -188,7 +195,7 @@
             </div>
 
             <div class="form-group">
-                <label>They are __________ and __________ __________.</label>
+                <label id="parentPersonalityLabel">They are __________ and __________ __________.</label>
                 <input type="text" id="parentPersonality" placeholder="Personality (e.g., kind)" required>
                 <div class="suggestions" id="parentPersonalitySuggestions">
                     <div>kind</div><div>funny</div><div>supportive</div><div>creative</div>
@@ -342,223 +349,13 @@
     </div>
 
     <script>
-        const suggestionFields = [
-            'parentPersonality', 'parentActionVerb', 'parentActionObject',
-            'parent1Physical', 'parent2Physical',
-            'relative1Personality', 'relative1ActionVerb', 'relative1ActionObject',
-            'relative2Personality', 'relative2ActionVerb', 'relative2ActionObject'
-        ];
-
-        suggestionFields.forEach(field => {
-            const input = document.getElementById(field);
-            if (!input) return;
-            const suggestions = document.getElementById(`${field}Suggestions`);
-            input.addEventListener('focus', function() {
-                if (!this.value) {
-                    suggestions.style.display = 'block';
-                    suggestions.style.left = this.offsetLeft + 'px';
-                    suggestions.style.top = (this.offsetTop + this.offsetHeight) + 'px';
-                }
-            });
-            input.addEventListener('blur', function() {
-                setTimeout(() => suggestions.style.display = 'none', 200);
-            });
-            suggestions.querySelectorAll('div').forEach(option => {
-                option.addEventListener('click', () => {
-                    input.value = option.textContent;
-                    suggestions.style.display = 'none';
-                });
-            });
-        });
-
-        function updatePronounOptions(relativeNum) {
-            const role = document.getElementById(`relative${relativeNum}Role`).value;
-            const pronounSelect = document.getElementById(`relative${relativeNum}Pronoun`);
-            
-            pronounSelect.innerHTML = '';
-            
-            if (role === 'brother') {
-                pronounSelect.innerHTML = '<option value="His">His</option>';
-                pronounSelect.value = 'His';
-            } else if (role === 'sister') {
-                pronounSelect.innerHTML = '<option value="Her">Her</option>';
-                pronounSelect.value = 'Her';
-            } else if (role === 'pet') {
-                pronounSelect.innerHTML = '<option value="Its">Its</option>';
-                pronounSelect.value = 'Its';
-            } else {
-                pronounSelect.innerHTML = `
-                    <option value="His">His</option>
-                    <option value="Her">Her</option>
-                `;
-                pronounSelect.value = 'His';
-            }
-        }
-
-        function updatePronounLabel(relativeNum) {
-            const pronoun = document.getElementById(`relative${relativeNum}Pronoun`).value;
-            const role = document.getElementById(`relative${relativeNum}Role`).value;
-            const traitsLabel = document.getElementById(`relative${relativeNum}TraitsLabel`);
-            const mainLabel = document.getElementById(`relative${relativeNum}Label`);
-            if (role !== 'pet') {
-                const subjectPronoun = pronoun === 'His' ? 'He' : 'She';
-                traitsLabel.textContent = `${subjectPronoun} is __________ and __________ __________.`;
-                mainLabel.textContent = `${relativeNum}. I’ve got a ${role}. ${pronoun} name is __________.`;
-            } else {
-                mainLabel.textContent = `${relativeNum}. I’ve got a pet. ${pronoun} name is __________.`;
-            }
-        }
-
-        function togglePetType(relativeNum) {
-            const role = document.getElementById(`relative${relativeNum}Role`).value;
-            const petTypeGroup = document.getElementById(`petTypeGroup${relativeNum}`);
-            const traitsGroup = document.getElementById(`relative${relativeNum}Traits`);
-            const personality = document.getElementById(`relative${relativeNum}Personality`);
-            const actionVerb = document.getElementById(`relative${relativeNum}ActionVerb`);
-            const actionObject = document.getElementById(`relative${relativeNum}ActionObject`);
-            const pronoun = document.getElementById(`relative${relativeNum}Pronoun`);
-
-            if (role === 'pet') {
-                petTypeGroup.style.display = 'block';
-                traitsGroup.style.display = 'none';
-                personality.required = false;
-                actionVerb.required = false;
-                actionObject.required = false;
-                pronoun.value = 'Its';
-                pronoun.disabled = true;
-            } else {
-                petTypeGroup.style.display = 'none';
-                traitsGroup.style.display = 'block';
-                personality.required = true;
-                actionVerb.required = true;
-                actionObject.required = true;
-                pronoun.disabled = false;
-                updatePronounOptions(relativeNum);
-                updatePronounLabel(relativeNum);
-            }
-        }
-
-        updatePronounOptions(1);
-        updatePronounOptions(2);
-        updatePronounLabel(1);
-        updatePronounLabel(2);
-
-        function downloadPresentation() {
-            const name = document.getElementById('name').value;
-            const familySize = document.getElementById('familySize').value;
-            const parent1Name = document.getElementById('parent1Name').value;
-            const parent1Role = document.getElementById('parent1Role').value;
-            const parent2Name = document.getElementById('parent2Name').value;
-            const parent2Role = document.getElementById('parent2Role').value;
-            const parentPersonality = document.getElementById('parentPersonality').value;
-            const parentActionVerb = document.getElementById('parentActionVerb').value;
-            const parentActionObject = document.getElementById('parentActionObject').value;
-            const parent1Physical = document.getElementById('parent1Physical').value;
-            const parent2Physical = document.getElementById('parent2Physical').value;
-            const relative1Role = document.getElementById('relative1Role').value;
-            const relative1Name = document.getElementById('relative1Name').value;
-            const relative1Pronoun = document.getElementById('relative1Pronoun').value;
-            const relative1Personality = document.getElementById('relative1Personality').value;
-            const relative1ActionVerb = document.getElementById('relative1ActionVerb').value;
-            const relative1ActionObject = document.getElementById('relative1ActionObject').value;
-            const relative1PetType = document.getElementById('petType1').value;
-            const relative2Role = document.getElementById('relative2Role').value;
-            const relative2Name = document.getElementById('relative2Name').value;
-            const relative2Pronoun = document.getElementById('relative2Pronoun').value;
-            const relative2Personality = document.getElementById('relative2Personality').value;
-            const relative2ActionVerb = document.getElementById('relative2ActionVerb').value;
-            const relative2ActionObject = document.getElementById('relative2ActionObject').value;
-            const relative2PetType = document.getElementById('petType2').value;
-            const studentName = document.getElementById('studentName').value;
-            const studentNumber = document.getElementById('studentNumber').value;
-            const studentClass = document.getElementById('studentClass').value;
-
-            const requiredInputs = document.querySelectorAll('input[required], select[required]');
-            let valid = true;
-            requiredInputs.forEach(input => {
-                if (!input.value) {
-                    input.classList.add('error');
-                    valid = false;
-                } else {
-                    input.classList.remove('error');
-                }
-            });
-            if (!valid) {
-                alert('Please fill in all required fields!');
-                return;
-            }
-
-            let parentText = `My parent is ${parent1Name}, my ${parent1Role}.`;
-            let physicalText = parent1Physical ? `${parent1Name} is ${parent1Physical}.` : '';
-            if (parent2Name && parent2Role) {
-                parentText = `My parents are ${parent1Name}, my ${parent1Role}, and ${parent2Name}, my ${parent2Role}.`;
-                if (parent2Physical) {
-                    physicalText += ` ${parent2Name} is ${parent2Physical}.`;
-                }
-            }
-
-            const subjectPronoun1 = relative1Pronoun === 'His' ? 'He' : relative1Pronoun === 'Her' ? 'She' : 'It';
-            const relative1Text = relative1Role === 'pet' 
-                ? `I’ve got a pet ${relative1PetType}. ${relative1Pronoun} name is ${relative1Name}.`
-                : `I’ve got a ${relative1Role}. ${relative1Pronoun} name is ${relative1Name}.\n${subjectPronoun1} is ${relative1Personality} and ${relative1ActionVerb} ${relative1ActionObject}.`;
-
-            const subjectPronoun2 = relative2Pronoun === 'His' ? 'He' : relative2Pronoun === 'Her' ? 'She' : 'It';
-            const relative2Text = relative2Role === 'pet' 
-                ? `I’ve got a pet ${relative2PetType}. ${relative2Pronoun} name is ${relative2Name}.`
-                : `I’ve got a ${relative2Role}. ${relative2Pronoun} name is ${relative2Name}.\n${subjectPronoun2} is ${relative2Personality} and ${relative2ActionVerb} ${relative2ActionObject}.`;
-
-            const presentation = `
-Hi, my name is ${name}.
-This is my family tree.
-There are ${familySize} people in my family, including me.
-${parentText}
-They are ${parentPersonality} and ${parentActionVerb} ${parentActionObject}.
-${physicalText.trim()}
-${relative1Text}
-${relative2Text}
-
-Name: ${studentName}
-Number: ${studentNumber}
-Class: ${studentClass}
-            `;
-
-            const blob = new Blob([presentation], { type: 'text/plain' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `${studentName || 'My'}_Family_Presentation.txt`;
-            link.click();
-        }
-
         let familyData = {};
-
-        function generateFamilyTree() {
-            familyData = {
-                name: document.getElementById('name').value || 'You',
-                parent1: {
-                    name: document.getElementById('parent1Name').value,
-                    role: document.getElementById('parent1Role').value
-                },
-                parent2: {
-                    name: document.getElementById('parent2Name').value,
-                    role: document.getElementById('parent2Role').value
-                },
-                relative1: {
-                    role: document.getElementById('relative1Role').value,
-                    name: document.getElementById('relative1Name').value,
-                    petType: document.getElementById('petType1').value
-                },
-                relative2: {
-                    role: document.getElementById('relative2Role').value,
-                    name: document.getElementById('relative2Name').value,
-                    petType: document.getElementById('petType2').value
-                }
-            };
-        }
 
         function setup() {
             const canvas = createCanvas(800, 400);
             canvas.parent('familyTreeCanvas');
             background('#e1f5fe');
+            noLoop(); // Prevent continuous drawing
         }
 
         function draw() {
@@ -637,6 +434,274 @@ Class: ${studentClass}
                     line(xCenter, 20 + boxHeight, node.x, y);
                 }
             });
+        }
+
+        function generateFamilyTree() {
+            const name = document.getElementById('name').value;
+            const parent1Name = document.getElementById('parent1Name').value;
+            const parent1Role = document.getElementById('parent1Role').value;
+            const parent1Pronoun = document.getElementById('parent1Pronoun').value;
+
+            // Validate required fields
+            const requiredInputs = [name, parent1Name, parent1Role, parent1Pronoun];
+            if (requiredInputs.some(input => !input)) {
+                alert('Please fill in all required fields (your name, first parent name, role, and pronoun)!');
+                return;
+            }
+
+            familyData = {
+                name: name || 'You',
+                parent1: {
+                    name: parent1Name,
+                    role: parent1Role
+                },
+                parent2: {
+                    name: document.getElementById('parent2Name').value,
+                    role: document.getElementById('parent2Role').value
+                },
+                relative1: {
+                    role: document.getElementById('relative1Role').value,
+                    name: document.getElementById('relative1Name').value,
+                    petType: document.getElementById('petType1').value
+                },
+                relative2: {
+                    role: document.getElementById('relative2Role').value,
+                    name: document.getElementById('relative2Name').value,
+                    petType: document.getElementById('petType2').value
+                }
+            };
+
+            redraw(); // Force p5.js to redraw the canvas
+        }
+
+        const suggestionFields = [
+            'parentPersonality', 'parentActionVerb', 'parentActionObject',
+            'parent1Physical', 'parent2Physical',
+            'relative1Personality', 'relative1ActionVerb', 'relative1ActionObject',
+            'relative2Personality', 'relative2ActionVerb', 'relative2ActionObject'
+        ];
+
+        suggestionFields.forEach(field => {
+            const input = document.getElementById(field);
+            if (!input) return;
+            const suggestions = document.getElementById(`${field}Suggestions`);
+            input.addEventListener('focus', function() {
+                if (!this.value) {
+                    suggestions.style.display = 'block';
+                    suggestions.style.left = this.offsetLeft + 'px';
+                    suggestions.style.top = (this.offsetTop + this.offsetHeight) + 'px';
+                }
+            });
+            input.addEventListener('blur', function() {
+                setTimeout(() => suggestions.style.display = 'none', 200);
+            });
+            suggestions.querySelectorAll('div').forEach(option => {
+                option.addEventListener('click', () => {
+                    input.value = option.textContent;
+                    suggestions.style.display = 'none';
+                });
+            });
+        });
+
+        function updateParentPronoun() {
+            const role = document.getElementById('parent1Role').value;
+            const pronounSelect = document.getElementById('parent1Pronoun');
+            
+            pronounSelect.innerHTML = '';
+            
+            if (role === 'father') {
+                pronounSelect.innerHTML = '<option value="His">His</option>';
+                pronounSelect.value = 'His';
+            } else if (role === 'mother') {
+                pronounSelect.innerHTML = '<option value="Her">Her</option>';
+                pronounSelect.value = 'Her';
+            } else {
+                pronounSelect.innerHTML = `
+                    <option value="His">His</option>
+                    <option value="Her">Her</option>
+                `;
+                pronounSelect.value = 'His';
+            }
+            updateParentLabel();
+        }
+
+        function updateParentLabel() {
+            const parent2Name = document.getElementById('parent2Name').value;
+            const parent2Role = document.getElementById('parent2Role').value;
+            const parent1Pronoun = document.getElementById('parent1Pronoun').value;
+            const label = document.getElementById('parentPersonalityLabel');
+            
+            if (parent2Name && parent2Role) {
+                label.textContent = 'They are __________ and __________ __________.';
+            } else {
+                const subjectPronoun = parent1Pronoun === 'His' ? 'He' : 'She';
+                label.textContent = `${subjectPronoun} is __________ and __________ __________.`;
+            }
+        }
+
+        function updatePronounOptions(relativeNum) {
+            const role = document.getElementById(`relative${relativeNum}Role`).value;
+            const pronounSelect = document.getElementById(`relative${relativeNum}Pronoun`);
+            
+            pronounSelect.innerHTML = '';
+            
+            if (role === 'brother') {
+                pronounSelect.innerHTML = '<option value="His">His</option>';
+                pronounSelect.value = 'His';
+            } else if (role === 'sister') {
+                pronounSelect.innerHTML = '<option value="Her">Her</option>';
+                pronounSelect.value = 'Her';
+            } else if (role === 'pet') {
+                pronounSelect.innerHTML = '<option value="Its">Its</option>';
+                pronounSelect.value = 'Its';
+            } else {
+                pronounSelect.innerHTML = `
+                    <option value="His">His</option>
+                    <option value="Her">Her</option>
+                `;
+                pronounSelect.value = 'His';
+            }
+        }
+
+        function updatePronounLabel(relativeNum) {
+            const pronoun = document.getElementById(`relative${relativeNum}Pronoun`).value;
+            const role = document.getElementById(`relative${relativeNum}Role`).value;
+            const traitsLabel = document.getElementById(`relative${relativeNum}TraitsLabel`);
+            const mainLabel = document.getElementById(`relative${relativeNum}Label`);
+            if (role !== 'pet') {
+                const subjectPronoun = pronoun === 'His' ? 'He' : 'She';
+                traitsLabel.textContent = `${subjectPronoun} is __________ and __________ __________.`;
+                mainLabel.textContent = `${relativeNum}. I’ve got a ${role}. ${pronoun} name is __________.`;
+            } else {
+                mainLabel.textContent = `${relativeNum}. I’ve got a pet. ${pronoun} name is __________.`;
+            }
+        }
+
+        function togglePetType(relativeNum) {
+            const role = document.getElementById(`relative${relativeNum}Role`).value;
+            const petTypeGroup = document.getElementById(`petTypeGroup${relativeNum}`);
+            const traitsGroup = document.getElementById(`relative${relativeNum}Traits`);
+            const personality = document.getElementById(`relative${relativeNum}Personality`);
+            const actionVerb = document.getElementById(`relative${relativeNum}ActionVerb`);
+            const actionObject = document.getElementById(`relative${relativeNum}ActionObject`);
+            const pronoun = document.getElementById(`relative${relativeNum}Pronoun`);
+
+            if (role === 'pet') {
+                petTypeGroup.style.display = 'block';
+                traitsGroup.style.display = 'none';
+                personality.required = false;
+                actionVerb.required = false;
+                actionObject.required = false;
+                pronoun.value = 'Its';
+                pronoun.disabled = true;
+            } else {
+                petTypeGroup.style.display = 'none';
+                traitsGroup.style.display = 'block';
+                personality.required = true;
+                actionVerb.required = true;
+                actionObject.required = true;
+                pronoun.disabled = false;
+                updatePronounOptions(relativeNum);
+                updatePronounLabel(relativeNum);
+            }
+        }
+
+        updateParentPronoun();
+        updatePronounOptions(1);
+        updatePronounOptions(2);
+        updatePronounLabel(1);
+        updatePronounLabel(2);
+
+        function downloadPresentation() {
+            const name = document.getElementById('name').value;
+            const familySize = document.getElementById('familySize').value;
+            const parent1Name = document.getElementById('parent1Name').value;
+            const parent1Role = document.getElementById('parent1Role').value;
+            const parent1Pronoun = document.getElementById('parent1Pronoun').value;
+            const parent2Name = document.getElementById('parent2Name').value;
+            const parent2Role = document.getElementById('parent2Role').value;
+            const parentPersonality = document.getElementById('parentPersonality').value;
+            const parentActionVerb = document.getElementById('parentActionVerb').value;
+            const parentActionObject = document.getElementById('parentActionObject').value;
+            const parent1Physical = document.getElementById('parent1Physical').value;
+            const parent2Physical = document.getElementById('parent2Physical').value;
+            const relative1Role = document.getElementById('relative1Role').value;
+            const relative1Name = document.getElementById('relative1Name').value;
+            const relative1Pronoun = document.getElementById('relative1Pronoun').value;
+            const relative1Personality = document.getElementById('relative1Personality').value;
+            const relative1ActionVerb = document.getElementById('relative1ActionVerb').value;
+            const relative1ActionObject = document.getElementById('relative1ActionObject').value;
+            const relative1PetType = document.getElementById('petType1').value;
+            const relative2Role = document.getElementById('relative2Role').value;
+            const relative2Name = document.getElementById('relative2Name').value;
+            const relative2Pronoun = document.getElementById('relative2Pronoun').value;
+            const relative2Personality = document.getElementById('relative2Personality').value;
+            const relative2ActionVerb = document.getElementById('relative2ActionVerb').value;
+            const relative2ActionObject = document.getElementById('relative2ActionObject').value;
+            const relative2PetType = document.getElementById('petType2').value;
+            const studentName = document.getElementById('studentName').value;
+            const studentNumber = document.getElementById('studentNumber').value;
+            const studentClass = document.getElementById('studentClass').value;
+
+            const requiredInputs = document.querySelectorAll('input[required], select[required]');
+            let valid = true;
+            requiredInputs.forEach(input => {
+                if (!input.value) {
+                    input.classList.add('error');
+                    valid = false;
+                } else {
+                    input.classList.remove('error');
+                }
+            });
+            if (!valid) {
+                alert('Please fill in all required fields!');
+                return;
+            }
+
+            let parentText = `My parent is ${parent1Name}, my ${parent1Role}.`;
+            let parentPersonalityText = `They are ${parentPersonality} and ${parentActionVerb} ${parentActionObject}.`;
+            if (parent2Name && parent2Role) {
+                parentText = `My parents are ${parent1Name}, my ${parent1Role}, and ${parent2Name}, my ${parent2Role}.`;
+            } else {
+                const subjectPronoun = parent1Pronoun === 'His' ? 'He' : 'She';
+                parentPersonalityText = `${subjectPronoun} is ${parentPersonality} and ${parentActionVerb} ${parentActionObject}.`;
+            }
+
+            let physicalText = parent1Physical ? `${parent1Name} is ${parent1Physical}.` : '';
+            if (parent2Physical && parent2Name && parent2Role) {
+                physicalText += ` ${parent2Name} is ${parent2Physical}.`;
+            }
+
+            const subjectPronoun1 = relative1Pronoun === 'His' ? 'He' : relative1Pronoun === 'Her' ? 'She' : 'It';
+            const relative1Text = relative1Role === 'pet' 
+                ? `I’ve got a pet ${relative1PetType}. ${relative1Pronoun} name is ${relative1Name}.`
+                : `I’ve got a ${relative1Role}. ${relative1Pronoun} name is ${relative1Name}.\n${subjectPronoun1} is ${relative1Personality} and ${relative1ActionVerb} ${relative1ActionObject}.`;
+
+            const subjectPronoun2 = relative2Pronoun === 'His' ? 'He' : relative2Pronoun === 'Her' ? 'She' : 'It';
+            const relative2Text = relative2Role === 'pet' 
+                ? `I’ve got a pet ${relative2PetType}. ${relative2Pronoun} name is ${relative2Name}.`
+                : `I’ve got a ${relative2Role}. ${relative2Pronoun} name is ${relative2Name}.\n${subjectPronoun2} is ${relative2Personality} and ${relative2ActionVerb} ${relative2ActionObject}.`;
+
+            const presentation = `
+Hi, my name is ${name}.
+This is my family tree.
+There are ${familySize} people in my family, including me.
+${parentText}
+${parentPersonalityText}
+${physicalText.trim()}
+${relative1Text}
+${relative2Text}
+
+Name: ${studentName}
+Number: ${studentNumber}
+Class: ${studentClass}
+            `;
+
+            const blob = new Blob([presentation], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${studentName || 'My'}_Family_Presentation.txt`;
+            link.click();
         }
     </script>
 </body>
